@@ -9,14 +9,16 @@ import javax.inject.Inject;
  */
 class BuildVersionExtension {
     final Project project;
+
     VersionNameOptions nameOptions
     VersionCodeOptions codeOptions
     FileOutputOptions outputOptions
 
+
     @Inject
-    BuildVersionExtension(Project project) {
-        this.project = project
-        nameOptions = new VersionNameOptions()
+    BuildVersionExtension(Project pProject) {
+        this.project = pProject
+        nameOptions = new VersionNameOptions(project)
         codeOptions = new VersionCodeOptions(project)
         outputOptions = new FileOutputOptions()
     }
@@ -34,10 +36,15 @@ class BuildVersionExtension {
     }
 
     int getVersionCode() {
-        return codeOptions.versionCode
+        int vName = codeOptions.versionCode
+        System.out.println("Get Version Code: " + vName)
+        return vName
     }
 
     String getVersionName() {
-        return nameOptions.versionName
+        String vName = nameOptions.versionName
+        System.out.println("Get Version Name: " + vName)
+        return vName
     }
+
 }

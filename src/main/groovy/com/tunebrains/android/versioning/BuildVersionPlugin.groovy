@@ -21,19 +21,24 @@ class BuildVersionPlugin implements Plugin<Project> {
         def advancedVersioning = project.extensions.create("advancedVersioning", BuildVersionExtension, project)
 
         project.afterEvaluate {
-//            for (dependentTask in advancedVersioning.codeOptions.dependsOnTasks) {
-//                for (String taskName in project.gradle.startParameter.taskNames) {
-//                    if (taskName.toLowerCase(Locale.ENGLISH).contains(dependentTask)) {
-//
-//                    }
-//                }
-//            }
+            def needIncrease = advancedVersioning.codeOptions.needIncrease()
 
-//            if (advancedVersioning.outputOptions.renameOutput) {
-//                project.android.applicationVariants.all {
-//                    advancedVersioning.outputOptions.generateOutputName(project, it)
-//                }
-//            }
+            def wasRelease = false
+            for (dependentTask in advancedVersioning.nameOptions.minorDependsOnTasks) {
+                for (String taskName in project.gradle.startParameter.taskNames) {
+                    if (taskName.toLowerCase(Locale.ENGLISH).contains(dependentTask.toLowerCase(Locale.ENGLISH))) {
+                        wasRelease = true
+                    }
+                }
+            }
+
+            if (needIncrease) {
+                advancedVersioning.codeOptions.increase(advancedVersioning)
+                advancedVersioning.nameOptions.increasePatch(advancedVersioning)
+            }
+            if (wasRelease) {
+                advancedVersioning.nameOptions.increaseMinor(advancedVersioning)
+            }
         }
     }
 
