@@ -10,6 +10,7 @@ import org.gradle.api.Project
 class BuildVersionPlugin implements Plugin<Project> {
 
     void apply(Project project) {
+        System.out.println("Apply BuildVersionPlugin")
         def androidGradlePlugin = getAndroidPluginVersion(project)
         if (androidGradlePlugin == null) {
             throw new IllegalStateException("The Android Gradle plugin not found. the " +
@@ -19,27 +20,30 @@ class BuildVersionPlugin implements Plugin<Project> {
         }
 
         def advancedVersioning = project.extensions.create("advancedVersioning", BuildVersionExtension, project)
-
+        System.out.println("setAfterEvaluate")
         project.afterEvaluate {
-            def needIncrease = advancedVersioning.codeOptions.needIncrease()
-
-            def wasRelease = false
-            for (dependentTask in advancedVersioning.nameOptions.minorDependsOnTasks) {
-                for (String taskName in project.gradle.startParameter.taskNames) {
-                    if (taskName.toLowerCase(Locale.ENGLISH).contains(dependentTask.toLowerCase(Locale.ENGLISH))) {
-                        wasRelease = true
-                    }
-                }
-            }
-
-            if (needIncrease) {
-                advancedVersioning.codeOptions.increase(advancedVersioning)
-                advancedVersioning.nameOptions.increasePatch(advancedVersioning)
-            }
-            if (wasRelease) {
-                advancedVersioning.nameOptions.increaseMinor(advancedVersioning)
-            }
+            advancedVersioning.checkIncrease(true)
+//            System.out.println("After Evaluate")
+//            def needIncrease = advancedVersioning.codeOptions.needIncrease()
+//
+//            def wasRelease = false
+//            for (dependentTask in advancedVersioning.nameOptions.minorDependsOnTasks) {
+//                for (String taskName in project.gradle.startParameter.taskNames) {
+//                    if (taskName.toLowerCase(Locale.ENGLISH).contains(dependentTask.toLowerCase(Locale.ENGLISH))) {
+//                        wasRelease = true
+//                    }
+//                }
+//            }
+//
+//            if (needIncrease) {
+//                advancedVersioning.codeOptions.increase(advancedVersioning)
+//                advancedVersioning.nameOptions.increasePatch(advancedVersioning)
+//            }
+//            if (wasRelease) {
+//                advancedVersioning.nameOptions.increaseMinor(advancedVersioning)
+//            }
         }
+
     }
 
     private static final String[] SUPPORTED_ANDROID_VERSIONS = ['0.14.', '1.'];

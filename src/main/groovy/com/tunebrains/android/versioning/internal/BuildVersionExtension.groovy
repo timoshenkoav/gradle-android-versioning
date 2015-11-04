@@ -10,41 +10,61 @@ import javax.inject.Inject;
 class BuildVersionExtension {
     final Project project;
 
-    VersionNameOptions nameOptions
-    VersionCodeOptions codeOptions
-    FileOutputOptions outputOptions
+    VersionOptions versionOptions;
 
+    private boolean increaseAfterBuild;
+    def wasIncreased
+    VersionUpdater versionUpdater
 
     @Inject
     BuildVersionExtension(Project pProject) {
         this.project = pProject
-        nameOptions = new VersionNameOptions(project)
-        codeOptions = new VersionCodeOptions(project)
-        outputOptions = new FileOutputOptions()
+        this.versionUpdater = new VersionUpdater(pProject)
+        versionOptions = new VersionOptions(pProject, versionUpdater)
     }
 
-    void nameOptions(Closure c) {
-        project.configure(nameOptions, c)
+    public void increaseAfterBuild(boolean v) {
+        System.out.println("Set increase after build")
+        this.increaseAfterBuild = v;
     }
 
-    void codeOptions(Closure c) {
-        project.configure(codeOptions, c)
-    }
-
-    void outputOptions(Closure c) {
-        project.configure(outputOptions, c)
+    void versionOptions(Closure c) {
+        project.configure(versionOptions, c)
     }
 
     int getVersionCode() {
-        int vName = codeOptions.versionCode
-        System.out.println("Get Version Code: " + vName)
-        return vName
+        checkIncrease(false)
+        def curVersion = versionOptions.getVersionCode()
+        System.out.println("getVersionCode " + curVersion)
+        return curVersion
+    }
+
+    def checkIncrease(boolean isafter) {
+        def needIncrease = false
+        if (increaseAfterBuild && isafter) {
+            needIncrease = true
+        }
+        if (!increaseAfterBuild && !isafter) {
+            needIncrease = true
+        }
+        if (needIncrease) {
+            increase()
+        }
+    }
+
+    def increase() {
+        if (wasIncreased)
+            return
+        System.out.println("Increase version")
+        versionUpdater.increasePatch()
+        versionOptions.update()
+        wasIncreased = true;
     }
 
     String getVersionName() {
-        String vName = nameOptions.versionName
-        System.out.println("Get Version Name: " + vName)
-        return vName
+        checkIncrease(false)
+        System.out.println("getVersionName " + versionOptions.getVersionName())
+        return versionOptions.getVersionName();
     }
 
 }
