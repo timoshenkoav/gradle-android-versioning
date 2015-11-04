@@ -1,0 +1,1 @@
+Sample Project to generate android versionName and versionCode 
