@@ -5,6 +5,7 @@ apply plugin: 'maven'
 group = 'com.tunebrains.android'
 version = '0.0.3'
 
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
 }
